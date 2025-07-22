@@ -1,3 +1,27 @@
+// Interface simples para GitHub Pages
+document.addEventListener('DOMContentLoaded', () => {
+  const app = document.getElementById('app-container');
+  app.innerHTML = `
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+      <h1 class="text-3xl font-bold mb-4">Game Matcher</h1>
+      <p class="mb-6">Encontra o jogo perfeito para jogar com o teu amigo!</p>
+      <button id="find-game" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
+        Encontrar Jogo
+      </button>
+      <div id="result" class="mt-6"></div>
+    </div>
+  `;
+
+  document.getElementById('find-game').addEventListener('click', () => {
+    // Exemplo de resultado
+    document.getElementById('result').innerHTML = `
+      <div class="bg-green-600 p-4 rounded">
+        <strong>Jogo sugerido:</strong> Rocket League 🚗⚽
+      </div>
+    `;
+  });
+});
+
 // Importações do Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
