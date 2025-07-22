@@ -1,25 +1,105 @@
-// Interface simples para GitHub Pages
+// --- MATCH LOCAL ENTRE DOIS AMIGOS ---
 document.addEventListener('DOMContentLoaded', () => {
   const app = document.getElementById('app-container');
   app.innerHTML = `
-    <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-xl mx-auto">
       <h1 class="text-3xl font-bold mb-4">Game Matcher</h1>
-      <p class="mb-6">Encontra o jogo perfeito para jogar com o teu amigo!</p>
-      <button id="find-game" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
-        Encontrar Jogo
-      </button>
-      <div id="result" class="mt-6"></div>
+      <p class="mb-6">Partilha este ecrã com o teu amigo! Cada um faz swipe (Gosto/Não Gosto) e quando ambos gostarem do mesmo jogo, aparece um match.</p>
+      <div id="game-card" class="mb-6"></div>
+      <div class="flex gap-4 mb-6">
+        <button id="like-btn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded">Gosto</button>
+        <button id="dislike-btn" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded">Não Gosto</button>
+      </div>
+      <div id="match-result" class="mt-6"></div>
+      <div id="progress" class="text-gray-400 mt-2"></div>
+      <div id="matches-list" class="mt-6"></div>
     </div>
   `;
 
-  document.getElementById('find-game').addEventListener('click', () => {
-    // Exemplo de resultado
-    document.getElementById('result').innerHTML = `
-      <div class="bg-green-600 p-4 rounded">
-        <strong>Jogo sugerido:</strong> Rocket League 🚗⚽
+  let currentGameIndex = 0;
+  let likesA = [];
+  let likesB = [];
+  let turn = 'A'; // Alterna entre A e B
+  let matches = [];
+
+  const gameCard = document.getElementById('game-card');
+  const likeBtn = document.getElementById('like-btn');
+  const dislikeBtn = document.getElementById('dislike-btn');
+  const matchResult = document.getElementById('match-result');
+  const progress = document.getElementById('progress');
+  const matchesList = document.getElementById('matches-list');
+
+  function showGame() {
+    if (currentGameIndex >= games.length) {
+      gameCard.innerHTML = `<div class='text-white text-center'>Fim da lista de jogos!</div>`;
+      likeBtn.disabled = true;
+      dislikeBtn.disabled = true;
+      progress.textContent = '';
+      return;
+    }
+    const game = games[currentGameIndex];
+    gameCard.innerHTML = `
+      <div class="bg-gray-700 rounded-lg p-4 flex flex-col items-center">
+        <img src="${game.image}" alt="${game.name}" class="mb-4 rounded-lg" style="max-width:300px;">
+        <h2 class="text-xl font-bold text-white mb-2">${game.name}</h2>
+        <p class="text-gray-300 text-center">${game.description}</p>
+        <div class="mt-4 text-sm text-teal-300">Jogador atual: <strong>${turn === 'A' ? 'A' : 'B'}</strong></div>
       </div>
     `;
+    progress.textContent = `Jogo ${currentGameIndex + 1} de ${games.length}`;
+  }
+
+  function updateMatchesList() {
+    if (matches.length === 0) {
+      matchesList.innerHTML = '<p class="text-gray-500 text-center">Ainda não há matches...</p>';
+      return;
+    }
+    matchesList.innerHTML = '<h3 class="text-lg font-bold text-teal-400 mb-2">Matches:</h3>';
+    matches.forEach(gameId => {
+      const game = games.find(g => g.id === gameId);
+      if (game) {
+        matchesList.innerHTML += `<div class='bg-gray-700 p-3 rounded-lg mb-2 flex items-center'><p class='font-semibold text-teal-400'>${game.name}</p></div>`;
+      }
+    });
+  }
+
+  function checkMatch(gameId) {
+    if (likesA.includes(gameId) && likesB.includes(gameId) && !matches.includes(gameId)) {
+      matches.push(gameId);
+      matchResult.innerHTML = `<div class='bg-green-600 p-4 rounded text-white text-center'><strong>Match!</strong> Ambos gostaram de <span class='font-bold'>${games.find(g => g.id === gameId).name}</span> 🎮</div>`;
+      updateMatchesList();
+      setTimeout(() => { matchResult.innerHTML = ''; }, 2500);
+    }
+  }
+
+  likeBtn.addEventListener('click', () => {
+    const gameId = games[currentGameIndex].id;
+    if (turn === 'A') {
+      likesA.push(gameId);
+      turn = 'B';
+      showGame();
+    } else {
+      likesB.push(gameId);
+      checkMatch(gameId);
+      turn = 'A';
+      currentGameIndex++;
+      showGame();
+    }
   });
+
+  dislikeBtn.addEventListener('click', () => {
+    if (turn === 'A') {
+      turn = 'B';
+      showGame();
+    } else {
+      turn = 'A';
+      currentGameIndex++;
+      showGame();
+    }
+  });
+
+  showGame();
+  updateMatchesList();
 });
 
 // --- DADOS DOS JOGOS ---
